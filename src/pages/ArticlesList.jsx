@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
-import { fetchArticles } from '../api/articles'
+import { useEffect, useState, useContext } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { fetchArticles, favoriteArticle, unfavoriteArticle } from '../api/articles'
+import { AuthContext } from '../context/AuthContext'
 
 export default function ArticlesList() {
   const [articles, setArticles] = useState([])
@@ -9,7 +10,34 @@ export default function ArticlesList() {
   const [page, setPage] = useState(1)
   const [total, setTotal] = useState(0)
 
+  const { user, token } = useContext(AuthContext)
+  const navigate = useNavigate()
+
   const LIMIT = 10
+
+  const handleLike = async (slug, favorited) => {
+    if (!user) {
+      navigate('/sign-in')
+      return
+    }
+
+    try {
+      const response = favorited
+        ? await unfavoriteArticle(token, slug)
+        : await favoriteArticle(token, slug)
+
+      const updatedArticle = response.data.article
+
+      setArticles(prev =>
+        prev.map(article =>
+          article.slug === slug ? updatedArticle : article
+        )
+      )
+
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   useEffect(() => {
     setLoading(true)
@@ -37,13 +65,13 @@ export default function ArticlesList() {
     <div className="page">
       <div className="container">
         <div className="articles-header">
-  <h1>Articles</h1>
-</div>
-
+          <h1>Articles</h1>
+        </div>
 
         {articles.map(article => (
           <div className="article-card" key={article.slug}>
-            {/* LEFT COLUMN — TEXT */}
+
+            {/* LEFT COLUMN */}
             <div className="article-left">
               <Link to={`/articles/${article.slug}`}>
                 <h3>{article.title}</h3>
@@ -53,10 +81,14 @@ export default function ArticlesList() {
 
             {/* RIGHT COLUMN — LIKE BUTTON */}
             <div className="article-right">
-              <button className="like-btn" disabled>
-                ❤️ {article.favoritesCount}
+              <button
+                className="like-btn"
+                onClick={() => handleLike(article.slug, article.favorited)}
+              >
+                {article.favorited ? '💔' : '❤️'} {article.favoritesCount}
               </button>
             </div>
+
           </div>
         ))}
 

@@ -1,7 +1,12 @@
 import { useEffect, useState, useContext } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import ReactMarkdown from 'react-markdown'
-import { fetchArticleBySlug, deleteArticle } from '../api/articles'
+import {
+  fetchArticleBySlug,
+  deleteArticle,
+  favoriteArticle,
+  unfavoriteArticle
+} from '../api/articles'
 import { AuthContext } from '../context/AuthContext'
 
 export default function ArticlePage() {
@@ -30,6 +35,23 @@ export default function ArticlePage() {
       })
   }, [slug])
 
+  const handleLike = async () => {
+    if (!user) {
+      navigate('/sign-in')
+      return
+    }
+
+    try {
+      const response = article.favorited
+        ? await unfavoriteArticle(token, slug)
+        : await favoriteArticle(token, slug)
+
+      setArticle(response.data.article)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   const confirmDelete = async () => {
     try {
       await deleteArticle(token, slug)
@@ -44,69 +66,57 @@ export default function ArticlePage() {
   if (!article) return null
 
   return (
-    <div>
-      <h1>{article.title}</h1>
+  <div className="article-container">
+    <h1 className="article-title">{article.title}</h1>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-        <p>By {article.author.username}</p>
+    <div className="article-meta">
+      <span>By {article.author.username}</span>
 
-        {user && user.username === article.author.username && (
-          <>
-            <Link to={`/articles/${slug}/edit`}>
-              Edit
-            </Link>
+      <button
+        className={`like-btn ${article.favorited ? 'liked' : ''}`}
+        onClick={handleLike}
+      >
+        ❤️ {article.favoritesCount}
+      </button>
 
-            <button
-              onClick={() => setShowModal(true)}
-              style={{ cursor: 'pointer' }}
-            >
-              Delete
-            </button>
-          </>
-        )}
-      </div>
+      {user && user.username === article.author.username && (
+        <>
+          <Link to={`/articles/${slug}/edit`} className="edit-btn">
+            Edit
+          </Link>
 
-      <ReactMarkdown>{article.body}</ReactMarkdown>
-
-      {/* Confirmation Modal */}
-      {showModal && (
-        <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            backgroundColor: 'rgba(0,0,0,0.5)',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
-        >
-          <div
-            style={{
-              background: 'white',
-              padding: '20px',
-              borderRadius: '8px',
-              width: '300px',
-              textAlign: 'center',
-            }}
+          <button
+            onClick={() => setShowModal(true)}
+            className="delete-btn"
           >
-            <p>Are you sure you want to delete this article?</p>
+            Delete
+          </button>
+        </>
+      )}
+    </div>
 
-            <button
-              onClick={confirmDelete}
-              style={{ marginRight: '10px' }}
-            >
+    <div className="article-body">
+      <ReactMarkdown>{article.body}</ReactMarkdown>
+    </div>
+
+    {showModal && (
+      <div className="modal-overlay">
+        <div className="modal">
+          <p>Are you sure you want to delete this article?</p>
+          <div className="modal-actions">
+            <button onClick={confirmDelete} className="confirm-btn">
               Yes
             </button>
-
-            <button onClick={() => setShowModal(false)}>
+            <button
+              onClick={() => setShowModal(false)}
+              className="cancel-btn"
+            >
               Cancel
             </button>
           </div>
         </div>
-      )}
-    </div>
-  )
+      </div>
+    )}
+  </div>
+)
 }

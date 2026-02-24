@@ -44,3 +44,26 @@ export const deleteArticle = (token, slug) => {
     }
   })
 }
+
+export const favoriteArticle = (token, slug) => {
+  return API.post(
+    `/articles/${slug}/favorite`,
+    {},
+    {
+      headers: {
+        Authorization: `Token ${token}`
+      }
+    }
+  )
+}
+
+export const unfavoriteArticle = (token, slug) => {
+  return API.delete(
+    `/articles/${slug}/favorite`,
+    {
+      headers: {
+        Authorization: `Token ${token}`
+      }
+    }
+  )
+}

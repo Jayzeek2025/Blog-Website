@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import { createArticle } from '../api/articles'
 
 export default function NewArticle() {
-  const { user, token } = useContext(AuthContext)
+  const { token } = useContext(AuthContext)
   const navigate = useNavigate()
 
   const {
