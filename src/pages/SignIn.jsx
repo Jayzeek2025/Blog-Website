@@ -44,10 +44,17 @@ export default function SignIn() {
 
       if (serverErrors) {
         Object.keys(serverErrors).forEach((field) => {
-          setError(field, {
-            type: 'server',
-            message: serverErrors[field].join(', '),
-          })
+          if (field === 'email' || field === 'password') {
+            setError(field, {
+              type: 'server',
+              message: serverErrors[field].join(', '),
+            })
+          } else {
+            setError('root', {
+              type: 'server',
+              message: serverErrors[field].join(', '),
+            })
+          }
         })
       }
     }
@@ -58,6 +65,10 @@ export default function SignIn() {
       <h2>Sign In</h2>
 
       <form onSubmit={handleSubmit(onSubmit)}>
+
+        {errors.root && (
+          <p style={errorStyle}>{errors.root.message}</p>
+        )}
 
         <div>
           <input
@@ -102,6 +113,7 @@ export default function SignIn() {
         >
           Sign In
         </button>
+
       </form>
     </div>
   )

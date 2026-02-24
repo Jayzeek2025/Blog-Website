@@ -12,3 +12,35 @@ export const fetchArticles = (page = 1, limit = 10) => {
 export const fetchArticleBySlug = (slug) => {
   return API.get(`/articles/${slug}`)
 }
+
+export const createArticle = (token, articleData) => {
+  return API.post(
+    '/articles',
+    { article: articleData },
+    {
+      headers: {
+        Authorization: `Token ${token}`
+      }
+    }
+  )
+}
+
+export const updateArticle = (token, slug, articleData) => {
+  return API.put(
+    `/articles/${slug}`,
+    { article: articleData },
+    {
+      headers: {
+        Authorization: `Token ${token}`
+      }
+    }
+  )
+}
+
+export const deleteArticle = (token, slug) => {
+  return API.delete(`/articles/${slug}`, {
+    headers: {
+      Authorization: `Token ${token}`
+    }
+  })
+}

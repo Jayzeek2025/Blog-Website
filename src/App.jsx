@@ -8,6 +8,8 @@ import SignIn from './pages/SignIn'
 import SignUp from './pages/SignUp'
 import Profile from './pages/Profile'
 import Header from './components/Header'
+import NewArticle from './pages/NewArticle'
+import EditArticle from './pages/EditArticle'
 
 import './App.css'
 
@@ -30,7 +32,16 @@ export default function App() {
           path="/profile"
           element={user ? <Profile /> : <Navigate to="/sign-in" />}
         />
+        <Route
+  path="/new-article"
+  element={user ? <NewArticle /> : <Navigate to="/sign-in" />}
+/>
+<Route
+  path="/articles/:slug/edit"
+  element={user ? <EditArticle /> : <Navigate to="/sign-in" />}
+/>
       </Routes>
     </>
+
   )
 }
